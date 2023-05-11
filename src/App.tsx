@@ -1,8 +1,18 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.css";
+import Header from "./pages/Header";
 
 function App() {
+  useEffect(() => {
+    fetch("/api/posts")
+      .then((res) => res.json())
+      .then((result) => {
+        console.log(process.env);
+        // console.log("result: ", result);
+      });
+  }, []);
   return (
     <div className="App">
       <header className="App-header">
@@ -19,6 +29,7 @@ function App() {
           Learn React
         </a>
       </header>
+      <Header />
     </div>
   );
 }
