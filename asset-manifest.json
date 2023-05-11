@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/admin-cntt-web-typescript/static/css/main.68841a8d.css",
-    "main.js": "/admin-cntt-web-typescript/static/js/main.bc4aba1b.js",
+    "main.js": "/admin-cntt-web-typescript/static/js/main.0d5d0044.js",
     "static/js/787.5138bcd8.chunk.js": "/admin-cntt-web-typescript/static/js/787.5138bcd8.chunk.js",
     "static/media/logo.svg": "/admin-cntt-web-typescript/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/admin-cntt-web-typescript/index.html",
     "main.68841a8d.css.map": "/admin-cntt-web-typescript/static/css/main.68841a8d.css.map",
-    "main.bc4aba1b.js.map": "/admin-cntt-web-typescript/static/js/main.bc4aba1b.js.map",
+    "main.0d5d0044.js.map": "/admin-cntt-web-typescript/static/js/main.0d5d0044.js.map",
     "787.5138bcd8.chunk.js.map": "/admin-cntt-web-typescript/static/js/787.5138bcd8.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.68841a8d.css",
-    "static/js/main.bc4aba1b.js"
+    "static/js/main.0d5d0044.js"
   ]
 }
