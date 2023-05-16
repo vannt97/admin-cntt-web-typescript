@@ -1,36 +1,59 @@
-import React, { useEffect } from "react";
-import logo from "./logo.svg";
+import React, { Suspense, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  Redirect,
+} from "react-router-dom";
+
 import "./App.css";
-import "bootstrap/dist/css/bootstrap.css";
-import Header from "./pages/Header";
+import Login from "./pages/auth/Login";
+import Layout from "./layouts/Layout";
+import $ from "jquery";
+import { getCookie } from "./utils/cookieUtil";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   useEffect(() => {
-    fetch("/api/posts")
-      .then((res) => res.json())
-      .then((result) => {
-        console.log(process.env);
-        // console.log("result: ", result);
-      });
+    window.addEventListener("scroll", function () {
+      var scrollDistance = $(this).scrollTop();
+      if ((scrollDistance as number) > 100) {
+        $(".scroll-to-top").fadeIn();
+      } else {
+        $(".scroll-to-top").fadeOut();
+      }
+    });
   }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-      <Header />
-    </div>
+    // <Suspense fallback={<div>Loading...</div>}>
+    // </Suspense>
+
+    <Router>
+      <Switch>
+        <Route
+          path="/login"
+          render={(props) => {
+            return getCookie("tk") ? (
+              <Redirect
+                to={{
+                  pathname: "/",
+                  state: { from: props.location },
+                }}
+              />
+            ) : (
+              <Login />
+            );
+          }}
+        ></Route>
+        <Route
+          path="/"
+          render={(props) => {
+            return <Layout {...props} />;
+          }}
+        ></Route>
+      </Switch>
+    </Router>
   );
 }
 
