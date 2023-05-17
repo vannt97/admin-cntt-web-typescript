@@ -12,7 +12,6 @@ export default function Pagination({
   totalPages,
   onPageChange,
 }: PropsPagination) {
-  
   const handlePageChange = (pageNumber: number) => {
     if (onPageChange) {
       onPageChange(pageNumber);
@@ -56,6 +55,10 @@ export default function Pagination({
       document
         .getElementById("dataTable_previous")
         ?.classList.remove("disabled");
+      document.getElementById("dataTable_next")?.classList.add("disabled");
+    }
+    if (totalPages === FIRST_ITEM || totalPages === 0) {
+      document.getElementById("dataTable_previous")?.classList.add("disabled");
       document.getElementById("dataTable_next")?.classList.add("disabled");
     }
   }, [currentPage, totalPages]);

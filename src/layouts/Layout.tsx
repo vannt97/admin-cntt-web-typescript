@@ -79,7 +79,15 @@ export default function Layout(props: any) {
           path={route.path}
           render={({ location }) => {
             if (getCookie("tk")) {
-              return <route.component {...props}></route.component>;
+              if (route.layout) {
+                return (
+                  <route.layout {...props}>
+                    <route.component />
+                  </route.layout>
+                );
+              } else {
+                return <route.component {...props}></route.component>;
+              }
             } else {
               setCookie("tk", "");
               setCookie("rtk", "");

@@ -1,3 +1,4 @@
+import Table from "./layouts/Table/Table";
 import Login from "./pages/auth/Login";
 import Categories from "./pages/Categories";
 import Dashboard from "./pages/Dashboard";
@@ -10,6 +11,7 @@ export interface route {
   path: string;
   name: string;
   component: Function;
+  layout?: Function;
 }
 const routes: route[] = [
   {
@@ -25,22 +27,26 @@ const routes: route[] = [
   {
     path: "/tags",
     name: "tags",
+    layout: Table,
     component: Tags,
   },
   {
     path: "/categories",
     name: "categories",
+    layout: Table,
     component: Categories,
   },
   {
     path: "/posts",
     name: "posts",
+    layout: Table,
     component: Posts,
   },
   {
     path: "/users",
     name: "users",
+    layout: Table,
     component: Users,
-  }
+  },
 ];
 export default routes;
