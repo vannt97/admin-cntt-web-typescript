@@ -1,4 +1,5 @@
 import Table from "./layouts/Table/Table";
+import AddEditUser from "./pages/AddEditUser";
 import Login from "./pages/auth/Login";
 import Categories from "./pages/Categories";
 import Dashboard from "./pages/Dashboard";
@@ -47,6 +48,16 @@ const routes: route[] = [
     name: "users",
     layout: Table,
     component: Users,
+  },
+  {
+    path: "/users/edit",
+    name: "users edit",
+    component: AddEditUser,
+  },
+  {
+    path: "/users/add",
+    name: "users add",
+    component: AddEditUser,
   },
 ];
 export default routes;

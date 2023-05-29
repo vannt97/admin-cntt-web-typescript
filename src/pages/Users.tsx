@@ -1,8 +1,12 @@
+import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
+import { Button, Modal } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import { LoadingGif } from "../components/Loading/Loading";
 import { PropsChildren } from "../layouts/Table/Table";
 import { ResponseData } from "../services/types";
-import { getUsers } from "../services/user";
+import { getUsers } from "../services/APIuser";
 
 export default function Users(props: PropsChildren) {
   // // Tính toán dữ liệu hiển thị trên trang hiện tại, ví dụ:
@@ -25,15 +29,18 @@ export default function Users(props: PropsChildren) {
             <td>{new Date(data.createdAt).toLocaleString()}</td>
             <td>{new Date(data.modifiedAt).toLocaleString()}</td>
             <td>
-              {/* <a {role != "ROLE_ANONYMOUS" ? "" : "hidden"} class="btn btn-primary btn-edit" href="/admin/edit/blog/{item.id}"><i class="fas fa-edit"></i></a>
-            <button ${role != "ROLE_ANONYMOUS" ? "" : "hidden"} class="btn btn-danger btn-remove" data-id="${item.id}" ><i class="fas fa-trash"></i></button> */}
+              <Link className="btn btn-primary btn-edit" to="/users/edit">
+                <FontAwesomeIcon icon={faPenToSquare} />
+              </Link>
+              <button className="btn btn-danger btn-remove ml-2">
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
             </td>
           </tr>
         );
       });
     }
   };
-
   useEffect(() => {
     try {
       getUsers((res: ResponseData) => {
@@ -47,47 +54,56 @@ export default function Users(props: PropsChildren) {
   }, []);
 
   return (
-    <table
-      style={{ width: "100%" }}
-      role={"grid"}
-      cellSpacing={0}
-      width={"100%"}
-      id="dataTable"
-      className="table-striped table table-bordered table-database dataTable"
-    >
-      {props.data ? (
-        <>
-          <thead>
+    <>
+      <table
+        style={{ width: "100%" }}
+        role={"grid"}
+        cellSpacing={0}
+        width={"100%"}
+        id="dataTable"
+        className="table-striped table table-bordered table-database dataTable"
+      >
+        {props.data ? (
+          <>
+            <thead>
+              <tr>
+                <th
+                  className="sorting"
+                  onClick={(e) => {
+                    props.handleSort(e);
+                  }}
+                >
+                  Id
+                </th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>CreateAt</th>
+                <th>ModifiedAt</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>{renderUsers()}</tbody>
+            <tfoot>
+              <tr>
+                <th>Id</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>CreateAt</th>
+                <th>ModifiedAt</th>
+                <th>Action</th>
+              </tr>
+            </tfoot>
+          </>
+        ) : (
+          <tbody>
             <tr>
-              <th>Id</th>
-              <th>Email</th>
-              <th>Name</th>
-              <th>CreateAt</th>
-              <th>ModifiedAt</th>
-              <th>Action</th>
+              <td className="text-center">
+                <LoadingGif />
+              </td>
             </tr>
-          </thead>
-          <tbody>{renderUsers()}</tbody>
-          <tfoot>
-            <tr>
-              <th>Id</th>
-              <th>Email</th>
-              <th>Name</th>
-              <th>CreateAt</th>
-              <th>ModifiedAt</th>
-              <th>Action</th>
-            </tr>
-          </tfoot>
-        </>
-      ) : (
-        <tbody>
-          <tr>
-            <td className="text-center">
-              <LoadingGif />
-            </td>
-          </tr>
-        </tbody>
-      )}
-    </table>
+          </tbody>
+        )}
+      </table>
+    </>
   );
 }

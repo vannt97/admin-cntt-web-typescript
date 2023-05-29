@@ -7,12 +7,11 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import loadingGif from "../assets/gif/loading-gif.gif";
 import { LoadingGif } from "../components/Loading/Loading";
-import { getCountCategory } from "../services/category";
-import { getCountPost } from "../services/post";
-import { getCountTag } from "../services/tag";
-import { getCountUsers } from "../services/user";
+import { getCountCategory } from "../services/APIcategory";
+import { getCountPost } from "../services/APIpost";
+import { getCountTag } from "../services/APItag";
+import { getCountUsers } from "../services/APIuser";
 export default function Dashboard() {
   const [numUser, setNumUser] = useState(null);
   const [numTag, setNumTag] = useState(null);

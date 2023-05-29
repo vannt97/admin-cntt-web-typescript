@@ -1,14 +1,14 @@
 import { Key, useEffect, useState } from "react";
 import { LoadingGif } from "../components/Loading/Loading";
-import Table from "../layouts/Table/Table";
-import { getCategories } from "../services/category";
+import Table, { PropsChildren } from "../layouts/Table/Table";
+import { getCategories } from "../services/APIcategory";
 import { ResponseData } from "../services/types";
 
 interface PropsCategories {
   callback: Function;
   data?: [] | null;
 }
-export default function Categories(props: PropsCategories) {
+export default function Categories(props: PropsChildren) {
   const renderCategories = () => {
     if (props.data?.length === 0) {
       return (
@@ -28,7 +28,7 @@ export default function Categories(props: PropsCategories) {
             <td>{new Date(data.modifiedAt).toLocaleString()}</td>
             <td>
               {/* <a {role != "ROLE_ANONYMOUS" ? "" : "hidden"} class="btn btn-primary btn-edit" href="/admin/edit/blog/{item.id}"><i class="fas fa-edit"></i></a>
-            <button ${role != "ROLE_ANONYMOUS" ? "" : "hidden"} class="btn btn-danger btn-remove" data-id="${item.id}" ><i class="fas fa-trash"></i></button> */}
+                  <button ${role != "ROLE_ANONYMOUS" ? "" : "hidden"} class="btn btn-danger btn-remove" data-id="${item.id}" ><i class="fas fa-trash"></i></button> */}
             </td>
           </tr>
         );
@@ -57,7 +57,14 @@ export default function Categories(props: PropsCategories) {
         <>
           <thead>
             <tr>
-              <th>Id</th>
+              <th
+                className="sorting"
+                onClick={(e) => {
+                  props.handleSort(e);
+                }}
+              >
+                Id
+              </th>
               <th>Name</th>
               <th>Created At</th>
               <th>Updated At</th>

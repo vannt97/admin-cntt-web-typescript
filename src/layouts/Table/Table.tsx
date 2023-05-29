@@ -1,5 +1,7 @@
 import React from "react";
 import { ReactNode, useEffect, useState } from "react";
+import { Button, Modal } from "react-bootstrap";
+import { Link, useLocation } from "react-router-dom";
 import Pagination from "../../components/Pagination/Pagination";
 import Search from "../../components/Search/Search";
 interface StateTable {
@@ -14,18 +16,28 @@ interface StateTable {
 export interface PropsChildren {
   callback: Function;
   data?: [] | null;
+  handleSort: Function;
 }
 
 const CURRENT_PAGE = 1;
 const ITEMS_PER_PAGE = 10;
+const PATH_NAME_ADD_USERS = "/users";
+const PATH_NAME_ADD_CATEGORY = "/categories";
+const PATH_NAME_ADD_POST = "/posts";
+const PATH_NAME_ADD_TAGS = "/tags";
 
 export default function Table(props: any) {
   const [table, setTable] = useState<StateTable | null>(null);
+  let location = useLocation();
+
+  useEffect(() => {
+  }, []);
+
   const handlePageChange = (pageNumber: number) => {
     let prevState = table as StateTable;
     const startIndex = (pageNumber - 1) * prevState.itemsPerPage;
     const endIndex = startIndex + prevState.itemsPerPage;
-    let newState = {
+    let newState: StateTable = {
       datas: prevState.datas,
       dataFiltered: prevState.dataFiltered,
       currentPage: pageNumber,
@@ -33,12 +45,10 @@ export default function Table(props: any) {
       currentItem: prevState.dataFiltered.slice(startIndex, endIndex),
       totalPages: Math.ceil(prevState.datas.length / prevState.itemsPerPage),
       typesSearch: prevState.typesSearch,
-    } as StateTable;
+    };
 
     setTable(newState);
   };
-
-  useEffect(() => {});
 
   const handleUpdateData = (data: [], typesSearch: string[]) => {
     const startIndex = (CURRENT_PAGE - 1) * ITEMS_PER_PAGE;
@@ -72,6 +82,95 @@ export default function Table(props: any) {
     // console.log(" itemsPerPage: ", prevState.itemsPerPage);
     setTable({ ...newState });
   };
+
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    let prevState = table as StateTable;
+    if (!Number.isNaN(e.currentTarget.value)) {
+      let itemsPerPage = e.currentTarget.value as unknown as number;
+      const startIndex = (prevState.currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      let newState: StateTable = {
+        dataFiltered: prevState.dataFiltered,
+        datas: prevState.datas,
+        currentPage: CURRENT_PAGE,
+        itemsPerPage: itemsPerPage,
+        currentItem: prevState.dataFiltered.slice(startIndex, endIndex),
+        totalPages: Math.ceil(prevState.datas.length / itemsPerPage),
+        typesSearch: prevState.typesSearch,
+      };
+      setTable(newState);
+    }
+  };
+
+  const handleSort = (
+    e: React.MouseEvent<HTMLTableHeaderCellElement, MouseEvent>
+  ) => {
+    let node = e.currentTarget;
+    let prevState = table as StateTable;
+    function handleSortState(arrSort: []) {
+      const startIndex = (CURRENT_PAGE - 1) * prevState.itemsPerPage;
+      const endIndex = startIndex + prevState.itemsPerPage;
+      let newState: StateTable = {
+        datas: prevState.datas,
+        dataFiltered: arrSort,
+        currentPage: CURRENT_PAGE,
+        itemsPerPage: prevState.itemsPerPage,
+        currentItem: arrSort.slice(startIndex, endIndex),
+        totalPages: prevState.totalPages,
+        typesSearch: prevState.typesSearch,
+      };
+      setTable(newState);
+    }
+    if (node.classList.contains("sorting_desc")) {
+      node.classList.remove("sorting_desc");
+      node.classList.add("sorting_asc");
+
+      let arrSort = prevState.dataFiltered.sort((a: any, b: any) => {
+        return a.id - b.id;
+      });
+      handleSortState(arrSort);
+      return;
+    }
+    if (node.classList.contains("sorting_asc")) {
+      node.classList.remove("sorting_asc");
+      node.classList.add("sorting_desc");
+      let arrSort = prevState.dataFiltered.sort((a: any, b: any) => {
+        return b.id - a.id;
+      });
+      handleSortState(arrSort);
+
+      return;
+    }
+    if (
+      !node.classList.contains("sorting_desc") &&
+      !node.classList.contains("sorting_asc")
+    ) {
+      node.classList.add("sorting_desc");
+      let arrSort = prevState.dataFiltered.sort((a: any, b: any) => {
+        return b.id - a.id;
+      });
+      handleSortState(arrSort);
+
+      return;
+    }
+  };
+
+  const renderUIbtnAdd = () => {
+    if (location.pathname === PATH_NAME_ADD_USERS) {
+      return (
+        <Link to="/users/add" className="btn btn-success">
+          Add
+        </Link>
+      );
+    }
+    if (location.pathname === PATH_NAME_ADD_CATEGORY) {
+    }
+    if (location.pathname === PATH_NAME_ADD_POST) {
+    }
+    if (location.pathname === PATH_NAME_ADD_TAGS) {
+    }
+  };
+
   return (
     <>
       <h1 className="text-capitalize h3 mb-3 text-gray-800">Users</h1>
@@ -79,14 +178,7 @@ export default function Table(props: any) {
         <div className="card-header py-3">
           <div className="d-flex justify-content-between align-items-center">
             <h6 className="m-0 font-weight-bold text-primary">DataTables</h6>
-            {/* <a
-          href="#"
-          className="btn  btn-success"
-          data-toggle="modal"
-          data-target="#accountCreateModal"
-        >
-          Add
-        </a> */}
+            {renderUIbtnAdd()}
           </div>
         </div>
         <div className="card-body">
@@ -104,31 +196,7 @@ export default function Table(props: any) {
                         name="dataTable_length"
                         aria-controls="dataTable"
                         className="custom-select custom-select-sm form-control form-control-sm"
-                        onChange={(e) => {
-                          let prevState = table as StateTable;
-                          if (!Number.isNaN(e.currentTarget.value)) {
-                            let itemsPerPage = e.currentTarget
-                              .value as unknown as number;
-                            const startIndex =
-                              (prevState.currentPage - 1) * itemsPerPage;
-                            const endIndex = startIndex + itemsPerPage;
-                            let newState: StateTable = {
-                              dataFiltered: prevState.dataFiltered,
-                              datas: prevState.datas,
-                              currentPage: CURRENT_PAGE,
-                              itemsPerPage: itemsPerPage,
-                              currentItem: prevState.dataFiltered.slice(
-                                startIndex,
-                                endIndex
-                              ),
-                              totalPages: Math.ceil(
-                                prevState.datas.length / itemsPerPage
-                              ),
-                              typesSearch: prevState.typesSearch,
-                            };
-                            setTable(newState);
-                          }
-                        }}
+                        onChange={handleSelect}
                       >
                         <option value="10">10</option>
                         <option value="25">25</option>
@@ -152,6 +220,7 @@ export default function Table(props: any) {
                   {React.cloneElement(props.children, {
                     data: table?.currentItem,
                     callback: handleUpdateData,
+                    handleSort: handleSort,
                   })}
                 </div>
               </div>
