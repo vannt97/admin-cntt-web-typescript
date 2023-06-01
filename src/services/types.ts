@@ -6,5 +6,5 @@ export interface RequestLogin {
 export interface ResponseData {
   success: boolean;
   status: number;
-  data: [] | {};
+  data: [] | {} | string;
 }

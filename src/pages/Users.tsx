@@ -7,6 +7,7 @@ import { LoadingGif } from "../components/Loading/Loading";
 import { PropsChildren } from "../layouts/Table/Table";
 import { ResponseData } from "../services/types";
 import { getUsers } from "../services/APIuser";
+import { getCookie } from "../utils/cookieUtil";
 
 export default function Users(props: PropsChildren) {
   // // Tính toán dữ liệu hiển thị trên trang hiện tại, ví dụ:
@@ -29,12 +30,18 @@ export default function Users(props: PropsChildren) {
             <td>{new Date(data.createdAt).toLocaleString()}</td>
             <td>{new Date(data.modifiedAt).toLocaleString()}</td>
             <td>
-              <Link className="btn btn-primary btn-edit" to="/users/edit">
-                <FontAwesomeIcon icon={faPenToSquare} />
-              </Link>
-              <button className="btn btn-danger btn-remove ml-2">
-                <FontAwesomeIcon icon={faTrash} />
-              </button>
+              {getCookie("role") === "ROLE_ADMIN" ? (
+                <>
+                  <Link className="btn btn-primary btn-edit" to="/users/edit">
+                    <FontAwesomeIcon icon={faPenToSquare} />
+                  </Link>
+                  <button className="btn btn-danger btn-remove ml-2">
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </>
+              ) : (
+                ""
+              )}
             </td>
           </tr>
         );

@@ -54,11 +54,10 @@ export default function Layout(props: any) {
   let { from }: any = location.state || { from: { pathname: "/login" } };
   useEffect(() => {
     window.addEventListener("resize", handleResize);
+
     const output = document.getElementById("username-Tk");
     if (output) {
-      output.innerHTML = getCookie("c_user")
-        ? (getCookie("c_user") as string)
-        : "";
+      output.innerHTML = localStorage.getItem("c_user") as string;
     }
 
     return () => window.removeEventListener("resize", handleResize);
@@ -91,7 +90,8 @@ export default function Layout(props: any) {
             } else {
               setCookie("tk", "");
               setCookie("rtk", "");
-              setCookie("c_user", "");
+              // setCookie("c_user", "");
+              localStorage.setItem("c_user","");
               setCookie("role", "");
               setCookie("id", "");
               setCookie("email", "");

@@ -4,6 +4,7 @@ import { Button, Modal } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import Pagination from "../../components/Pagination/Pagination";
 import Search from "../../components/Search/Search";
+import { getCookie } from "../../utils/cookieUtil";
 interface StateTable {
   datas: [];
   dataFiltered: [];
@@ -30,8 +31,7 @@ export default function Table(props: any) {
   const [table, setTable] = useState<StateTable | null>(null);
   let location = useLocation();
 
-  useEffect(() => {
-  }, []);
+  useEffect(() => {}, []);
 
   const handlePageChange = (pageNumber: number) => {
     let prevState = table as StateTable;
@@ -53,6 +53,9 @@ export default function Table(props: any) {
   const handleUpdateData = (data: [], typesSearch: string[]) => {
     const startIndex = (CURRENT_PAGE - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
+    // data = data.sort((a: any, b: any) => {
+    //   return b.id - a.id;
+    // });
     let newState: StateTable = {
       datas: data,
       dataFiltered: data,
@@ -107,6 +110,7 @@ export default function Table(props: any) {
   ) => {
     let node = e.currentTarget;
     let prevState = table as StateTable;
+
     function handleSortState(arrSort: []) {
       const startIndex = (CURRENT_PAGE - 1) * prevState.itemsPerPage;
       const endIndex = startIndex + prevState.itemsPerPage;
@@ -121,16 +125,17 @@ export default function Table(props: any) {
       };
       setTable(newState);
     }
+
     if (node.classList.contains("sorting_desc")) {
       node.classList.remove("sorting_desc");
       node.classList.add("sorting_asc");
-
       let arrSort = prevState.dataFiltered.sort((a: any, b: any) => {
         return a.id - b.id;
       });
       handleSortState(arrSort);
       return;
     }
+
     if (node.classList.contains("sorting_asc")) {
       node.classList.remove("sorting_asc");
       node.classList.add("sorting_desc");
@@ -138,7 +143,6 @@ export default function Table(props: any) {
         return b.id - a.id;
       });
       handleSortState(arrSort);
-
       return;
     }
     if (
@@ -150,18 +154,19 @@ export default function Table(props: any) {
         return b.id - a.id;
       });
       handleSortState(arrSort);
-
       return;
     }
   };
 
   const renderUIbtnAdd = () => {
     if (location.pathname === PATH_NAME_ADD_USERS) {
-      return (
-        <Link to="/users/add" className="btn btn-success">
-          Add
-        </Link>
-      );
+      if (getCookie("role") === "ROLE_ADMIN") {
+        return (
+          <Link to="/users/add" className="btn btn-success">
+            Add
+          </Link>
+        );
+      }
     }
     if (location.pathname === PATH_NAME_ADD_CATEGORY) {
     }

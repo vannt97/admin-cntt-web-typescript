@@ -40,7 +40,8 @@ function Login() {
       const data = (await fetchLogin(requestLogin)) as dataResponseLogin;
       setCookie("tk", data.token);
       setCookie("rtk", data.refreshToken);
-      setCookie("c_user", data.name);
+      // setCookie("c_user", data.name);
+      localStorage.setItem("c_user",data.name);
       setCookie("role", data.role);
       setCookie("id", data.id);
       setCookie("email", data.email);

@@ -1,19 +1,21 @@
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { LoadingGif } from "../components/Loading/Loading";
 import { getCookie } from "../utils/cookieUtil";
 import avartarImage from "../assets/svgs/undraw_profile.svg";
 import { uploadImage } from "../services/APIimage";
+import { ResponseData } from "../services/types";
+import { createUser } from "../services/APIuser";
 
 const PATH_ADD_USER = "/users/add";
 const PATH_EDIT_USER = "/users/edit";
 
 const roles = [
-  {
-    name: "Admin",
-    value: 1,
-  },
+  // {
+  //   name: "Admin",
+  //   value: 1,
+  // },
   {
     name: "Staff",
     value: 2,
@@ -35,8 +37,11 @@ interface StateAddEditUser {
 }
 export default function AddEditUser() {
   let location = useLocation();
-  let [isLoading, setIsLoading] = useState(false);
+  let history = useHistory();
+  let { from }: any = location.state || { from: { pathname: "/users" } };
 
+  let [isLoading, setIsLoading] = useState(false);
+  
   useEffect(() => {
     if (location.pathname === PATH_ADD_USER) {
     }
@@ -53,28 +58,6 @@ export default function AddEditUser() {
     }
   }, []);
 
-  // const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { value, name } = e.currentTarget;
-  //   setData({ ...data, [name]: value });
-  // };
-
-  // const handleOnChangeLink = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { value, name } = e.currentTarget;
-  //   setData({ ...data, links: [...data.links] });
-  // };
-
-  // const handleOnChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const { value, name, dataset } = e.currentTarget;
-  //   setData({ ...data, [name]: value });
-  // };
-
-  // const handleOnChangeTextArea = (
-  //   e: React.ChangeEvent<HTMLTextAreaElement>
-  // ) => {
-  //   const { value, name } = e.currentTarget;
-  //   setData({ ...data, [name]: value });
-  // };
-
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -87,8 +70,12 @@ export default function AddEditUser() {
       links: [],
     },
     onSubmit: (values) => {
-      console.log(values);
-      alert(JSON.stringify(values, null, 2));
+      createUser(values, (response: any) => {
+        if (response.success) {
+          history.replace(from);
+        }
+        alert(JSON.stringify(response, null, 2));
+      });
     },
   });
 
@@ -117,7 +104,7 @@ export default function AddEditUser() {
       <div className="row justify-content-center">
         <div className="col-12 col-xl-5">
           <form onSubmit={formik.handleSubmit}>
-            {/* <div className="form-group">
+            <div className="form-group">
               <label htmlFor="emailAddEdituser">Email address</label>
               <input
                 type="email"
@@ -183,13 +170,22 @@ export default function AddEditUser() {
                 onChange={formik.handleChange}
                 value={formik.values.description}
               ></textarea>
-            </div> */}
+            </div>
             <div className="form-group">
-              <label htmlFor="avataAddEditUser">Avatar</label>
-
+              <label htmlFor="" className="d-block">
+                Avatar
+              </label>
+              <label
+                htmlFor="avataAddEditUser"
+                className="btn btn-primary"
+                id="chooseFile"
+              >
+                Choose
+              </label>
               <input
+                hidden
                 type="file"
-                className="form-control-file"
+                className="form-control-file mb-2"
                 id="avataAddEditUser"
                 onChange={(e) => {
                   let RegExpImg = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
@@ -198,21 +194,43 @@ export default function AddEditUser() {
                   } else {
                     e.currentTarget.setAttribute("hidden", "true");
                     setIsLoading(true);
-                    // if()
                     let selectedFile = (e.currentTarget.files as FileList)[0];
                     let imgtag = document.getElementById("imgThumbnailSuccess");
-                    // uploadImage((res)=>{},selectedFile );
-                    // uploadImage(selectedFile, (response) => {
-                    //   if (response.success) {
-                    //     $("#loadinggif").hide();
-                    //     imgtag.src = response.data;
-                    //     $("#file-thumbnail-input").val(response.data);
-                    //   }
-                    // });
+                    uploadImage((response: ResponseData) => {
+                      if (response.success) {
+                        if (imgtag) {
+                          setIsLoading(false);
+                          (imgtag as HTMLImageElement).src =
+                            response.data as string;
+                          (imgtag as HTMLImageElement).hidden = false;
+                          (
+                            document.getElementById(
+                              "file-thumbnail-input"
+                            ) as HTMLInputElement
+                          ).value = response.data as string;
+                          formik.setFieldValue(
+                            "avatar",
+                            response.data as string
+                          );
+                          (
+                            document.getElementById(
+                              "avataAddEditUser"
+                            ) as HTMLElement
+                          ).hidden = true;
+                          (
+                            document.getElementById(
+                              "removeAvatar"
+                            ) as HTMLElement
+                          ).hidden = false;
+                          (
+                            document.getElementById("chooseFile") as HTMLElement
+                          ).hidden = true;
+                        }
+                      }
+                    }, selectedFile);
                   }
                 }}
               />
-
               {isLoading ? (
                 <>
                   <br />
@@ -221,11 +239,50 @@ export default function AddEditUser() {
               ) : (
                 ""
               )}
-              <div style={{ width: 60, height: 60 }}>
-                <img src={avartarImage} alt="" />
-              </div>
+              <input
+                defaultValue={""}
+                name="avatar"
+                type={"text"}
+                id="file-thumbnail-input"
+                hidden
+              />
+              <img
+                className=""
+                id="imgThumbnailSuccess"
+                src=""
+                alt=""
+                hidden
+                style={{ objectFit: "contain", height: 100, width: 100 }}
+              />
+              <button
+                type="button"
+                id="removeAvatar"
+                className="btn btn-danger ml-3"
+                hidden
+                onClick={() => {
+                  (
+                    document.getElementById(
+                      "imgThumbnailSuccess"
+                    ) as HTMLElement
+                  ).hidden = true;
+                  (
+                    document.getElementById(
+                      "file-thumbnail-input"
+                    ) as HTMLInputElement
+                  ).value = "";
+                  formik.setFieldValue("avatar", "");
+                  (
+                    document.getElementById("removeAvatar") as HTMLElement
+                  ).hidden = true;
+                  (
+                    document.getElementById("chooseFile") as HTMLElement
+                  ).hidden = false;
+                }}
+              >
+                Remove
+              </button>
             </div>
-            {/* <div className="form-group">
+            <div className="form-group">
               <label htmlFor="linkFBAddEditUser">Link FaceBook</label>
               <input
                 type="text"
@@ -303,7 +360,7 @@ export default function AddEditUser() {
                   );
                 })}
               </select>
-            </div> */}
+            </div>
             <button
               id="btn-add-edit-user"
               type="submit"
