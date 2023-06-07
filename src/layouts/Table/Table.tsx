@@ -18,6 +18,7 @@ export interface PropsChildren {
   callback: Function;
   data?: [] | null;
   handleSort: Function;
+  removeItem: Function;
 }
 
 const CURRENT_PAGE = 1;
@@ -53,9 +54,6 @@ export default function Table(props: any) {
   const handleUpdateData = (data: [], typesSearch: string[]) => {
     const startIndex = (CURRENT_PAGE - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    // data = data.sort((a: any, b: any) => {
-    //   return b.id - a.id;
-    // });
     let newState: StateTable = {
       datas: data,
       dataFiltered: data,
@@ -160,15 +158,18 @@ export default function Table(props: any) {
 
   const renderUIbtnAdd = () => {
     if (location.pathname === PATH_NAME_ADD_USERS) {
-      if (getCookie("role") === "ROLE_ADMIN") {
-        return (
-          <Link to="/users/add" className="btn btn-success">
-            Add
-          </Link>
-        );
-      }
+      return (
+        <Link to="/users/add" className="btn btn-success">
+          Add
+        </Link>
+      );
     }
     if (location.pathname === PATH_NAME_ADD_CATEGORY) {
+      return (
+        <Link to="/category/add" className="btn btn-success">
+          Add
+        </Link>
+      );
     }
     if (location.pathname === PATH_NAME_ADD_POST) {
     }
@@ -176,6 +177,22 @@ export default function Table(props: any) {
     }
   };
 
+  const handleRemoveItem = (id: number) => {
+    let data = (table as StateTable).datas.filter(
+      (item) => (item as any).id !== id
+    );
+    const startIndex = (CURRENT_PAGE - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    setTable({
+      ...(table as StateTable),
+      datas: data as [],
+      dataFiltered: data as [],
+      currentPage: CURRENT_PAGE,
+      itemsPerPage: ITEMS_PER_PAGE,
+      currentItem: data.slice(startIndex, endIndex),
+      totalPages: Math.ceil(data.length / ITEMS_PER_PAGE),
+    });
+  };
   return (
     <>
       <h1 className="text-capitalize h3 mb-3 text-gray-800">Users</h1>
@@ -226,6 +243,7 @@ export default function Table(props: any) {
                     data: table?.currentItem,
                     callback: handleUpdateData,
                     handleSort: handleSort,
+                    removeItem: handleRemoveItem,
                   })}
                 </div>
               </div>

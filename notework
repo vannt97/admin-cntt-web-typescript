@@ -1,0 +1,10 @@
+- categories create
+- categories edit
+- categories remove
+- posts create
+- posts edit
+- posts remove
+- tags create
+- tags edit
+- tags remove
+- edit detail user;

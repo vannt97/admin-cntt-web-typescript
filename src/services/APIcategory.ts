@@ -6,8 +6,8 @@ export async function getCountCategory(callback: Function) {
       `${process.env.REACT_APP_API_URL}/count/category`
     );
     callback(response.data);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    console.log(error.response.data);
   }
 }
 
@@ -17,7 +17,8 @@ export async function getCategories(callback: Function) {
       `${process.env.REACT_APP_API_URL}/categories`
     );
     callback(response.data);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    console.log(error.response.data);
   }
 }
+
