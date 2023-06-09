@@ -34,7 +34,7 @@ export default function Categories(props: PropsChildren) {
               <>
                 <Link
                   className="btn btn-primary btn-edit"
-                  to={`/users/edit/${data.id}`}
+                  to={`/category/edit/${data.id}`}
                 >
                   <FontAwesomeIcon icon={faPenToSquare} />
                 </Link>

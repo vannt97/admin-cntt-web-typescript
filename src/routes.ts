@@ -1,6 +1,6 @@
 import Table from "./layouts/Table/Table";
+import AddCategory from "./pages/EditAddCategory";
 import AddUser from "./pages/AddUser";
-import AddEditUser from "./pages/AddUser";
 import Login from "./pages/auth/Login";
 import Categories from "./pages/Categories";
 import Dashboard from "./pages/Dashboard";
@@ -9,6 +9,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import Posts from "./pages/Posts";
 import Tags from "./pages/Tags";
 import Users from "./pages/Users";
+import EditAddCategory from "./pages/EditAddCategory";
 
 export interface route {
   path: string;
@@ -60,6 +61,16 @@ const routes: route[] = [
     path: "/users/add",
     name: "users add",
     component: AddUser,
+  },
+  {
+    path: "/category/add",
+    name: "category add",
+    component: EditAddCategory,
+  },
+  {
+    path: "/category/edit/:id",
+    name: "category edit",
+    component: EditAddCategory,
   },
 ];
 export default routes;
