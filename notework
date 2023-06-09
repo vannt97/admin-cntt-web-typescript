@@ -1,10 +1,9 @@
-- categories remove
-- posts create
-- posts edit
-- posts remove
 - tags create
 - tags edit
 - tags remove
+- posts create
+- posts edit
+- posts remove
 - edit detail user;
 - check lai phan admin render server side cac chuc nang cua cu minh da thay doi phan user
 - check lai phan phan quyen

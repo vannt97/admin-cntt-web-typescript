@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { ReactNode, useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
@@ -30,9 +30,24 @@ const PATH_NAME_ADD_TAGS = "/tags";
 
 export default function Table(props: any) {
   const [table, setTable] = useState<StateTable | null>(null);
+  const labelRef = useRef<any>(undefined);
+
   let location = useLocation();
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (location.pathname === PATH_NAME_ADD_USERS) {
+      (labelRef.current as HTMLElement).innerHTML = "Users";
+    }
+    if (location.pathname === PATH_NAME_ADD_CATEGORY) {
+      (labelRef.current as HTMLElement).innerHTML = "Categories";
+    }
+    if (location.pathname === PATH_NAME_ADD_POST) {
+      (labelRef.current as HTMLElement).innerHTML = "Posts";
+    }
+    if (location.pathname === PATH_NAME_ADD_TAGS) {
+      (labelRef.current as HTMLElement).innerHTML = "Tags";
+    }
+  }, []);
 
   const handlePageChange = (pageNumber: number) => {
     let prevState = table as StateTable;
@@ -174,6 +189,11 @@ export default function Table(props: any) {
     if (location.pathname === PATH_NAME_ADD_POST) {
     }
     if (location.pathname === PATH_NAME_ADD_TAGS) {
+      return (
+        <Link to="/tag/add" className="btn btn-success">
+          Add
+        </Link>
+      );
     }
   };
 
@@ -193,9 +213,16 @@ export default function Table(props: any) {
       totalPages: Math.ceil(data.length / ITEMS_PER_PAGE),
     });
   };
+
   return (
     <>
-      <h1 className="text-capitalize h3 mb-3 text-gray-800">Users</h1>
+      <h1
+        ref={labelRef}
+        className="text-capitalize h3 mb-3 text-gray-800"
+        id="labelTable"
+      >
+        Users
+      </h1>
       <div className="card shadow mb-4">
         <div className="card-header py-3">
           <div className="d-flex justify-content-between align-items-center">

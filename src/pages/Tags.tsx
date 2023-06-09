@@ -1,10 +1,17 @@
+import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect } from "react";
+import { Link, useHistory } from "react-router-dom";
 import { LoadingGif } from "../components/Loading/Loading";
 import { PropsChildren } from "../layouts/Table/Table";
-import { getTags } from "../services/APItag";
+import { removeCategory } from "../services/APIcategory";
+import { getTags, removeTag } from "../services/APItag";
 import { ResponseData } from "../services/types";
+import { getCookie } from "../utils/cookieUtil";
 
 export default function Tags(props: PropsChildren) {
+  const history = useHistory();
+
   const renderTags = () => {
     if (props.data?.length === 0) {
       return (
@@ -23,8 +30,32 @@ export default function Tags(props: PropsChildren) {
             <td>{new Date(data.createdAt).toLocaleString()}</td>
             <td>{new Date(data.modifiedAt).toLocaleString()}</td>
             <td>
-              {/* <a {role != "ROLE_ANONYMOUS" ? "" : "hidden"} class="btn btn-primary btn-edit" href="/admin/edit/blog/{item.id}"><i class="fas fa-edit"></i></a>
-            <button ${role != "ROLE_ANONYMOUS" ? "" : "hidden"} class="btn btn-danger btn-remove" data-id="${item.id}" ><i class="fas fa-trash"></i></button> */}
+            <>
+                <Link
+                  className="btn btn-primary btn-edit"
+                  to={`/tag/edit/${data.id}`}
+                >
+                  <FontAwesomeIcon icon={faPenToSquare} />
+                </Link>
+                <button
+                  className="btn btn-danger btn-remove ml-2"
+                  onClick={() => {
+                    // eslint-disable-next-line no-restricted-globals
+                    if (confirm("Bạn có muốn xoá không?")) {
+                      if (getCookie("role") !== "ROLE_ADMIN") {
+                        alert("Bạn không có quyền xoá user");
+                        return;
+                      }
+                      removeTag(data.id, (response: ResponseData) => {
+                        props.removeItem(data.id);
+                        history.push(history.location.pathname);
+                      });
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </>
             </td>
           </tr>
         );

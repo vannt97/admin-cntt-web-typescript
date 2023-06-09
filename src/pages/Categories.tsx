@@ -1,10 +1,10 @@
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Key, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { LoadingGif } from "../components/Loading/Loading";
 import Table, { PropsChildren } from "../layouts/Table/Table";
-import { getCategories } from "../services/APIcategory";
+import { getCategories, removeCategory } from "../services/APIcategory";
 import { ResponseData } from "../services/types";
 import { getCookie } from "../utils/cookieUtil";
 
@@ -13,6 +13,8 @@ interface PropsCategories {
   data?: [] | null;
 }
 export default function Categories(props: PropsChildren) {
+  const history = useHistory();
+
   const renderCategories = () => {
     if (props.data?.length === 0) {
       return (
@@ -43,10 +45,14 @@ export default function Categories(props: PropsChildren) {
                   onClick={() => {
                     // eslint-disable-next-line no-restricted-globals
                     if (confirm("Bạn có muốn xoá không?")) {
-                      // deleteUser(data.id, (response: ResponseData) => {
-                      //   props.removeItem(data.id);
-                      //   history.push(history.location.pathname);
-                      // });
+                      if (getCookie("role") !== "ROLE_ADMIN") {
+                        alert("Bạn không có quyền xoá user");
+                        return;
+                      }
+                      removeCategory(data.id, (response: ResponseData) => {
+                        props.removeItem(data.id);
+                        history.push(history.location.pathname);
+                      });
                     }
                   }}
                 >

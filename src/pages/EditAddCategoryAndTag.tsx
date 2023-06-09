@@ -6,20 +6,33 @@ import {
   editCateogry,
   getCategory,
 } from "../services/APIcategory";
+import { createTag, editTag, getTag } from "../services/APItag";
 import { ResponseData } from "../services/types";
 import { getCookie } from "../utils/cookieUtil";
 
-const PATH_ADD = "/category/add";
-const PATH_EDIT = "/category/edit";
+const PATH_ADD_CATEGORY = "/category/add";
+const PATH_EDIT_CATEGORY = "/category/edit";
+const PATH_ADD_TAG = "/tag/add";
+const PATH_EDIT_TAG = "/tag/edit";
 
-export default function EditAddCategory() {
+export default function EditAddCategoryAndTag() {
   const param = useParams<{ id: string }>();
   let location = useLocation();
   useEffect(() => {
-    if (location.pathname.includes(PATH_EDIT)) {
+    if (location.pathname.includes(PATH_EDIT_CATEGORY)) {
       getCategory(param.id, (response: ResponseData) => {
         if (response.success) {
-          console.log(response);
+          formik.setValues({
+            name: (response.data as any).name,
+            id: (response.data as any).id,
+          });
+        }
+      });
+    }
+
+    if (location.pathname.includes(PATH_EDIT_TAG)) {
+      getTag(param.id, (response: ResponseData) => {
+        if (response.success) {
           formik.setValues({
             name: (response.data as any).name,
             id: (response.data as any).id,
@@ -35,13 +48,24 @@ export default function EditAddCategory() {
     },
     onSubmit: (values) => {
       if (getCookie("role") === "ROLE_ADMIN") {
-        if (location.pathname.includes(PATH_EDIT)) {
+        if (location.pathname.includes(PATH_EDIT_CATEGORY)) {
           editCateogry(values, (response: ResponseData) => {
             alert(response.data);
           });
         }
-        if (location.pathname.includes(PATH_ADD)) {
+        if (location.pathname.includes(PATH_ADD_CATEGORY)) {
           createCategory(values.name, (response: any) => {
+            alert(JSON.stringify(response, null, 2));
+          });
+        }
+
+        if (location.pathname.includes(PATH_EDIT_TAG)) {
+          editTag(values, (response: ResponseData) => {
+            alert(response.data);
+          });
+        }
+        if (location.pathname.includes(PATH_ADD_TAG)) {
+          createTag(values.name, (response: any) => {
             alert(JSON.stringify(response, null, 2));
           });
         }
