@@ -187,6 +187,11 @@ export default function Table(props: any) {
       );
     }
     if (location.pathname === PATH_NAME_ADD_POST) {
+      return (
+        <Link to="/post/add" className="btn btn-success">
+          Add
+        </Link>
+      );
     }
     if (location.pathname === PATH_NAME_ADD_TAGS) {
       return (

@@ -10,6 +10,7 @@ import Posts from "./pages/Posts";
 import Tags from "./pages/Tags";
 import Users from "./pages/Users";
 import EditAddCategoryAndTag from "./pages/EditAddCategoryAndTag";
+import EditAddPost from "./pages/EditAddPost";
 
 export interface route {
   path: string;
@@ -81,6 +82,16 @@ const routes: route[] = [
     path: "/tag/edit/:id",
     name: "tag edit",
     component: EditAddCategoryAndTag,
+  },
+  {
+    path: "/post/add/",
+    name: "post add",
+    component: EditAddPost,
+  },
+  {
+    path: "/post/edit/:id",
+    name: "post edit",
+    component: EditAddPost,
   },
 ];
 export default routes;
