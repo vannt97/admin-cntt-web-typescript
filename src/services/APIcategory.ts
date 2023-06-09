@@ -50,7 +50,24 @@ export async function createCategory(data: string, callback: Function) {
       callback(respone.data);
     })
     .catch(function (error) {
-      console.log("error: ", error);
+      callback(error.response.data);
+    });
+}
+
+export async function editCateogry(data: {}, callback: Function) {
+  let bodyFormData = new FormData();
+  bodyFormData.append("name", (data as any).name);
+  bodyFormData.append("id", (data as any).id);
+  axios({
+    method: "put",
+    url: `${process.env.REACT_APP_API_URL}/edit/category`,
+    headers: { Authorization: `Bearer ${getCookie("tk")}` },
+    data: bodyFormData,
+  })
+    .then(function (respone) {
+      callback(respone.data);
+    })
+    .catch(function (error) {
       callback(error.response.data);
     });
 }

@@ -1,7 +1,11 @@
 import { useFormik } from "formik";
 import { useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { createCategory, getCategory } from "../services/APIcategory";
+import {
+  createCategory,
+  editCateogry,
+  getCategory,
+} from "../services/APIcategory";
 import { ResponseData } from "../services/types";
 import { getCookie } from "../utils/cookieUtil";
 
@@ -15,8 +19,10 @@ export default function EditAddCategory() {
     if (location.pathname.includes(PATH_EDIT)) {
       getCategory(param.id, (response: ResponseData) => {
         if (response.success) {
+          console.log(response);
           formik.setValues({
             name: (response.data as any).name,
+            id: (response.data as any).id,
           });
         }
       });
@@ -25,11 +31,14 @@ export default function EditAddCategory() {
   const formik = useFormik({
     initialValues: {
       name: "",
+      id: "",
     },
     onSubmit: (values) => {
       if (getCookie("role") === "ROLE_ADMIN") {
         if (location.pathname.includes(PATH_EDIT)) {
-          
+          editCateogry(values, (response: ResponseData) => {
+            alert(response.data);
+          });
         }
         if (location.pathname.includes(PATH_ADD)) {
           createCategory(values.name, (response: any) => {
