@@ -1,8 +1,46 @@
 import React, { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
+import Select from "react-select";
 import "react-quill/dist/quill.snow.css";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileUpload } from "@fortawesome/free-solid-svg-icons";
+import { getCategories } from "../services/APIcategory";
+import { ResponseData } from "../services/types";
+import { getTags } from "../services/APItag";
+import { LoadingGif } from "../components/Loading/Loading";
+import { uploadImage } from "../services/APIimage";
+import { useFormik } from "formik";
+import { getCookie } from "../utils/cookieUtil";
+type OptionType = {
+  value: string;
+  label: string;
+};
 export default function EditAddPost() {
+  const formik = useFormik({
+    initialValues: {
+      title: "",
+      content: "",
+      status: "",
+      thumbnail: "",
+      description: "",
+      categories: [],
+      tags: [],
+      idAuthor: getCookie("id"),
+    },
+    onSubmit: (values) => {
+      if (getCookie("role") === "ROLE_ADMIN") {
+        // editUserAdmin(values, (response: ResponseData) => {
+        //   if (response.success) {
+        //     alert("Edit thành công");
+        //   } else {
+        //     alert("Edit không thành công. Vui lòng thử lại");
+        //   }
+        // });
+      } else {
+        alert("Bạn phải không có quyền create post");
+      }
+    },
+  });
   const modules = {
     toolbar: [
       [{ header: [1, 2, false] }],
@@ -20,29 +58,101 @@ export default function EditAddPost() {
   const formats = [
     "font",
     "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-    "header",
-    "blockquote",
-    "code-block",
-    "indent",
-    "list",
-    "direction",
-    "align",
-    "link",
-    "image",
-    "video",
-    "formula",
+    // "bold",
+    // "italic",
+    // "underline",
+    // "strike",
+    // "color",
+    // "background",
+    // "script",
+    // "header",
+    // "blockquote",
+    // "code-block",
+    // "indent",
+    // "list",
+    // "direction",
+    // "align",
+    // "link",
+    // "image",
+    // "video",
+    // "formula",
   ];
-  const [value, setValue] = useState("");
+
+  const [valueCateogries, setValueCategory] = useState<OptionType[]>([]);
+  const [valueTags, setValueTags] = useState<OptionType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    console.log("value: ", value);
-  }, [value]);
+    getCategories((response: ResponseData) => {
+      if (response.success) {
+        let arr = (response.data as []).map((item: any) => {
+          return {
+            value: item.id,
+            label: item.name,
+          };
+        });
+        setValueCategory(arr);
+      }
+    });
+
+    getTags((response: ResponseData) => {
+      if (response.success) {
+        let arr = (response.data as []).map((item: any) => {
+          return {
+            value: item.id,
+            label: item.name,
+          };
+        });
+        setValueTags(arr);
+      }
+    });
+  }, []);
+
+  const handleChangeFileLoadImage = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let RegExpImg = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+    if (!RegExpImg.exec(e.target.value)) {
+      alert("Sai định dạng ảnh");
+    } else {
+      (document.querySelector("#c_file") as HTMLElement).hidden = true;
+      let selectedFile = (e.currentTarget.files as FileList)[0];
+      let imgtag = document.getElementById("imgThumbnailSuccess");
+      (document.querySelector("#c_file_success") as HTMLElement).hidden = false;
+      uploadImage((response: ResponseData) => {
+        if (response.success) {
+          if (imgtag) {
+            setIsLoading(false);
+            (imgtag as HTMLImageElement).src = response.data as string;
+
+            (
+              document.getElementById(
+                "file-thumbnail-input"
+              ) as HTMLInputElement
+            ).value = response.data as string;
+
+            // formik.setFieldValue(
+            //   "avatar",
+            //   response.data as string
+            // );
+          }
+        }
+      }, selectedFile);
+    }
+  };
+
+  const handleRemoveFile = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    (document.getElementById("c_file_success") as HTMLElement).hidden = true;
+    setIsLoading(true);
+    (document.getElementById("c_file") as HTMLElement).hidden = false;
+    // formik.setFieldValue(
+    //   "avatar",
+    //   response.data as string
+    // );
+  };
+
   return (
     <div className="row">
       <div className="col-xl-8 col-lg-7">
@@ -54,9 +164,10 @@ export default function EditAddPost() {
                 type="text"
                 className="form-control"
                 name="title"
-                value=""
+                value={formik.values.title}
                 id="title"
                 required
+                onChange={formik.handleChange}
               />
             </div>
             <div className="form-group">
@@ -65,7 +176,8 @@ export default function EditAddPost() {
                 className="form-control"
                 id="description"
                 name="description"
-                value=""
+                value={formik.values.description}
+                onChange={formik.handleChange}
               ></textarea>
             </div>
             <div className="form-group">
@@ -74,8 +186,10 @@ export default function EditAddPost() {
                 theme="snow"
                 modules={modules}
                 formats={formats}
-                value={value}
-                onChange={setValue}
+                value={formik.values.content}
+                onChange={(value) => {
+                  formik.setFieldValue("content", value);
+                }}
               />
             </div>
           </div>
@@ -109,7 +223,13 @@ export default function EditAddPost() {
           </div>
           <div className="card-body">
             <div className="form-group">
-              <select id="select-to"></select>
+              <Select
+                options={valueCateogries}
+                isMulti
+                onChange={(e) => {
+                  console.log("e: ", e);
+                }}
+              />
             </div>
           </div>
         </div>
@@ -119,7 +239,13 @@ export default function EditAddPost() {
           </div>
           <div className="card-body">
             <div className="form-group">
-              <select id="select-to-tag"></select>
+              <Select
+                options={valueTags}
+                isMulti
+                onChange={(e) => {
+                  console.log("e: ", e);
+                }}
+              />
             </div>
           </div>
         </div>
@@ -129,19 +255,20 @@ export default function EditAddPost() {
             <h6 className="m-0 font-weight-bold text-primary">Thumbnail</h6>
           </div>
           <div className="card-body ">
-            <div id="c_file" className="form-group text-center">
+            <div id="c_file" className="form-group text-center mb-0">
               <label
                 htmlFor="file-thumbnail"
                 className=""
                 style={{ fontSize: "60px", cursor: "pointer" }}
               >
-                <i className="fas fa-file-upload "></i>
+                <FontAwesomeIcon icon={faFileUpload} />
               </label>
               <input
                 name="thumbnail"
                 type="file"
                 hidden
                 id="file-thumbnail"
+                onChange={handleChangeFileLoadImage}
                 required
               />
               <input
@@ -154,9 +281,22 @@ export default function EditAddPost() {
             </div>
             <div id="c_file_success" className="form-group text-center" hidden>
               <div>
-                {/* <img id="loadinggif" th:src="@{/images/loading-gif.gif}" alt="" style={{width: 60, display: 'none'}}/> */}
-                {/* <img id="imgThumbnailSuccess" className="w-100" src="" alt="" title="image"/> */}
-                {/* <button  type="button" id="remove-image" className="d-block mt-3 mx-auto btn btn-danger">Remove</button> */}
+                {isLoading ? <LoadingGif /> : ""}
+                <img
+                  id="imgThumbnailSuccess"
+                  className="w-100"
+                  src=""
+                  alt=""
+                  title="image"
+                />
+                <button
+                  onClick={handleRemoveFile}
+                  type="button"
+                  id="remove-image"
+                  className="d-block mt-3 mx-auto btn btn-danger"
+                >
+                  Remove
+                </button>
               </div>
             </div>
           </div>
