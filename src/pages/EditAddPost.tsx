@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { LegacyRef, useEffect, useMemo, useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import Select from "react-select";
 import "react-quill/dist/quill.snow.css";
@@ -11,11 +11,26 @@ import { LoadingGif } from "../components/Loading/Loading";
 import { uploadImage } from "../services/APIimage";
 import { useFormik } from "formik";
 import { getCookie } from "../utils/cookieUtil";
+import { createPost, editPost, getPost } from "../services/APIpost";
+import { useLocation, useParams } from "react-router-dom";
+import { rejects } from "assert";
+
 type OptionType = {
   value: string;
   label: string;
 };
+
+type ValueCagtegoryTag = {
+  categories: OptionType[];
+  tags: OptionType[];
+};
+
+const PATH_ADD_POST = "/post/add";
+const PATH_EDIT_POST = "/post/edit";
+
 export default function EditAddPost() {
+  let location = useLocation();
+  const param = useParams<{ id: string }>();
   const formik = useFormik({
     initialValues: {
       title: "",
@@ -29,60 +44,152 @@ export default function EditAddPost() {
     },
     onSubmit: (values) => {
       if (getCookie("role") === "ROLE_ADMIN") {
-        // editUserAdmin(values, (response: ResponseData) => {
-        //   if (response.success) {
-        //     alert("Edit thành công");
-        //   } else {
-        //     alert("Edit không thành công. Vui lòng thử lại");
-        //   }
-        // });
+        if (values.title) {
+          if (location.pathname.includes(PATH_EDIT_POST)) {
+            editPost(slugPost, values, (res: ResponseData) => {
+              // console.log("res: ", res);
+              alert((res.data as any).data);
+            });
+          } else {
+            createPost(values, (res: ResponseData) => {
+              alert(res.data);
+            });
+          }
+        } else {
+          alert("Không được bỏ qua title");
+        }
       } else {
         alert("Bạn phải không có quyền create post");
       }
     },
   });
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, false] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
-      ],
-      ["link", "image"],
-      ["clean"],
-    ],
+  const quillRef = useRef(null);
+
+  const imageHandler = (e: any) => {
+    const editor = (quillRef as any).current.getEditor();
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.onchange = async () => {
+      const file = (input as any).files[0];
+      if (/^image\//.test(file.type)) {
+        uploadImage((response: ResponseData) => {
+          if (response.success) {
+            editor.insertEmbed(editor.getSelection(), "image", response.data);
+          }
+        }, file);
+      }
+    };
   };
+  // const modules = {
+  //   toolbar: [
+  //     [{ header: [1, 2, 3, 4, 5, 6, false] }],
+  //     ["bold", "italic", "underline", "strike", "blockquote"],
+  //     [
+  //       { list: "ordered" },
+  //       { list: "bullet" },
+  //       { indent: "-1" },
+  //       { indent: "+1" },
+  //     ],
+  //     ["link", "image"],
+  //     ["clean"],
+  //   ],
+  // };
+
+  const modules = useMemo(
+    () => ({
+      toolbar: {
+        container: [
+          [{ header: [1, 2, 3, 4, 5, 6, false] }],
+          ["bold", "italic", "underline", "strike", "blockquote"],
+          [
+            { list: "ordered" },
+            { list: "bullet" },
+            { indent: "-1" },
+            { indent: "+1" },
+          ],
+          ["image", "link"],
+          [
+            {
+              color: [
+                "#000000",
+                "#e60000",
+                "#ff9900",
+                "#ffff00",
+                "#008a00",
+                "#0066cc",
+                "#9933ff",
+                "#ffffff",
+                "#facccc",
+                "#ffebcc",
+                "#ffffcc",
+                "#cce8cc",
+                "#cce0f5",
+                "#ebd6ff",
+                "#bbbbbb",
+                "#f06666",
+                "#ffc266",
+                "#ffff66",
+                "#66b966",
+                "#66a3e0",
+                "#c285ff",
+                "#888888",
+                "#a10000",
+                "#b26b00",
+                "#b2b200",
+                "#006100",
+                "#0047b2",
+                "#6b24b2",
+                "#444444",
+                "#5c0000",
+                "#663d00",
+                "#666600",
+                "#003700",
+                "#002966",
+                "#3d1466",
+              ],
+            },
+          ],
+        ],
+        handlers: {
+          image: imageHandler,
+        },
+      },
+    }),
+    []
+  );
+
   const formats = [
     "font",
     "size",
-    // "bold",
-    // "italic",
-    // "underline",
-    // "strike",
-    // "color",
-    // "background",
-    // "script",
-    // "header",
-    // "blockquote",
-    // "code-block",
-    // "indent",
-    // "list",
-    // "direction",
-    // "align",
-    // "link",
-    // "image",
-    // "video",
-    // "formula",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "color",
+    "background",
+    "script",
+    "header",
+    "blockquote",
+    "code-block",
+    "indent",
+    "list",
+    "direction",
+    "align",
+    "link",
+    "image",
+    "video",
+    "formula",
   ];
 
-  const [valueCateogries, setValueCategory] = useState<OptionType[]>([]);
-  const [valueTags, setValueTags] = useState<OptionType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [value, setValue] = useState<ValueCagtegoryTag>();
+  const [slugPost, setSlugPost] = useState("");
 
   useEffect(() => {
+    let stateValue: ValueCagtegoryTag = {} as any;
     getCategories((response: ResponseData) => {
       if (response.success) {
         let arr = (response.data as []).map((item: any) => {
@@ -91,19 +198,72 @@ export default function EditAddPost() {
             label: item.name,
           };
         });
-        setValueCategory(arr);
-      }
-    });
+        stateValue.categories = arr;
+        getTags((response: ResponseData) => {
+          if (response.success) {
+            let arr = (response.data as []).map((item: any) => {
+              return {
+                value: item.id,
+                label: item.name,
+              };
+            });
+            stateValue.tags = arr;
+            if (location.pathname.includes(PATH_EDIT_POST)) {
+              getPost(param.id, (response: ResponseData) => {
+                let valueTags = ((response.data as any).tags as []).map(
+                  (item: any) => {
+                    return {
+                      value: item.id,
+                      label: item.name,
+                    };
+                  }
+                );
+                let valueCategories = (
+                  (response.data as any).categories as []
+                ).map((item: any) => {
+                  return {
+                    value: item.id,
+                    label: item.name,
+                  };
+                });
 
-    getTags((response: ResponseData) => {
-      if (response.success) {
-        let arr = (response.data as []).map((item: any) => {
-          return {
-            value: item.id,
-            label: item.name,
-          };
+                formik.setValues({
+                  title: (response.data as any).title,
+                  content: (response.data as any).content,
+                  status: "",
+                  thumbnail: (response.data as any).thumbnail,
+                  description: (response.data as any).description,
+                  categories: valueCategories as [],
+                  tags: valueTags as [],
+                  idAuthor: getCookie("id"),
+                });
+
+                setSlugPost((response.data as any).slug);
+
+                (document.querySelector("#c_file") as HTMLElement).hidden =
+                  true;
+                (
+                  document.querySelector("#c_file_success") as HTMLElement
+                ).hidden = false;
+
+                (
+                  document.getElementById(
+                    "imgThumbnailSuccess"
+                  ) as HTMLImageElement
+                ).src = (response.data as any).thumbnail;
+                (
+                  document.getElementById(
+                    "file-thumbnail-input"
+                  ) as HTMLInputElement
+                ).value = (response.data as any).thumbnail as string;
+
+                setIsLoading(false);
+              });
+            } else {
+              setValue(stateValue);
+            }
+          }
         });
-        setValueTags(arr);
       }
     });
   }, []);
@@ -124,17 +284,13 @@ export default function EditAddPost() {
           if (imgtag) {
             setIsLoading(false);
             (imgtag as HTMLImageElement).src = response.data as string;
-
             (
               document.getElementById(
                 "file-thumbnail-input"
               ) as HTMLInputElement
             ).value = response.data as string;
 
-            // formik.setFieldValue(
-            //   "avatar",
-            //   response.data as string
-            // );
+            formik.setFieldValue("thumbnail", response.data as string);
           }
         }
       }, selectedFile);
@@ -147,10 +303,7 @@ export default function EditAddPost() {
     (document.getElementById("c_file_success") as HTMLElement).hidden = true;
     setIsLoading(true);
     (document.getElementById("c_file") as HTMLElement).hidden = false;
-    // formik.setFieldValue(
-    //   "avatar",
-    //   response.data as string
-    // );
+    formik.setFieldValue("thumbnail", "");
   };
 
   return (
@@ -183,6 +336,7 @@ export default function EditAddPost() {
             <div className="form-group">
               <label>Content</label>
               <ReactQuill
+                ref={quillRef}
                 theme="snow"
                 modules={modules}
                 formats={formats}
@@ -202,7 +356,15 @@ export default function EditAddPost() {
           </div>
           <div className="card-body">
             <div className="form-group">
-              <button type="submit" className="form-control" id="draft-blog">
+              <button
+                onClick={() => {
+                  formik.setFieldValue("status", "DRAFT");
+                  formik.handleSubmit(undefined);
+                }}
+                type="submit"
+                className="form-control"
+                id="draft-blog"
+              >
                 Draft
               </button>
             </div>
@@ -211,6 +373,10 @@ export default function EditAddPost() {
                 type="submit"
                 className="form-control btn-primary"
                 id="upload-blog"
+                onClick={() => {
+                  formik.setFieldValue("status", "PUBLISH");
+                  formik.handleSubmit(undefined);
+                }}
               >
                 Update
               </button>
@@ -224,10 +390,11 @@ export default function EditAddPost() {
           <div className="card-body">
             <div className="form-group">
               <Select
-                options={valueCateogries}
+                value={formik.values.categories as OptionType[]}
+                options={value?.categories}
                 isMulti
                 onChange={(e) => {
-                  console.log("e: ", e);
+                  formik.setFieldValue("categories", e);
                 }}
               />
             </div>
@@ -240,10 +407,11 @@ export default function EditAddPost() {
           <div className="card-body">
             <div className="form-group">
               <Select
-                options={valueTags}
+                value={formik.values.tags as OptionType[]}
+                options={value?.tags}
                 isMulti
                 onChange={(e) => {
-                  console.log("e: ", e);
+                  formik.setFieldValue("tags", e);
                 }}
               />
             </div>

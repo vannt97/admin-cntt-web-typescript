@@ -1,10 +1,16 @@
+import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect } from "react";
+import { Link, useHistory } from "react-router-dom";
 import { LoadingGif } from "../components/Loading/Loading";
 import { PropsChildren } from "../layouts/Table/Table";
-import { getPosts } from "../services/APIpost";
+import { getPosts, removePost } from "../services/APIpost";
 import { ResponseData } from "../services/types";
+import { getCookie } from "../utils/cookieUtil";
 
 export default function Posts(props: PropsChildren) {
+  const history = useHistory();
+
   const renderPosts = () => {
     if (props.data?.length === 0) {
       return (
@@ -24,8 +30,37 @@ export default function Posts(props: PropsChildren) {
             <td>{new Date(data.createdAt).toLocaleString()}</td>
             <td>{new Date(data.modifiedAt).toLocaleString()}</td>
             <td>
-              {/* <a {role != "ROLE_ANONYMOUS" ? "" : "hidden"} class="btn btn-primary btn-edit" href="/admin/edit/blog/{item.id}"><i class="fas fa-edit"></i></a>
-                <button ${role != "ROLE_ANONYMOUS" ? "" : "hidden"} class="btn btn-danger btn-remove" data-id="${item.id}" ><i class="fas fa-trash"></i></button> */}
+              <>
+                <Link
+                  className="btn btn-primary btn-edit"
+                  to={`/post/edit/${data.id}`}
+                >
+                  <FontAwesomeIcon icon={faPenToSquare} />
+                </Link>
+                <button
+                  className="btn btn-danger btn-remove ml-2"
+                  onClick={() => {
+                    if (getCookie("role") !== "ROLE_ADMIN") {
+                      alert("Bạn không có quyền xoá user");
+                      return;
+                    }
+                    // eslint-disable-next-line no-restricted-globals
+                    if (confirm("Bạn có muốn xoá không?")) {
+                      // deleteUser(data.id, (response: ResponseData) => {
+                      //   props.removeItem(data.id);
+                      //   history.push(history.location.pathname);
+                      // });c
+                      removePost(data.id, (response: ResponseData) => {
+                        alert("xoá thành công");
+                        props.removeItem(data.id);
+                        history.push(history.location.pathname);
+                      });
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </>
             </td>
           </tr>
         );

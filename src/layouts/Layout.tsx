@@ -23,7 +23,6 @@ import routes, { route } from "../routes";
 import $ from "jquery";
 import "./Layout.css";
 import { deleteAllCookies, getCookie, setCookie } from "../utils/cookieUtil";
-
 const labelsUI = [
   {
     path: "/users",
@@ -207,6 +206,7 @@ export default function Layout(props: any) {
                   <FontAwesomeIcon icon={faAngleLeft} />
                 )}
               </button>
+              
             </div>
           </ul>
           <div id="content-wrapper" className="d-flex flex-column">

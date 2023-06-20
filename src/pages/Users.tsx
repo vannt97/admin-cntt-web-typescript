@@ -50,6 +50,7 @@ export default function Users(props: PropsChildren) {
                     // eslint-disable-next-line no-restricted-globals
                     if (confirm("Bạn có muốn xoá không?")) {
                       deleteUser(data.id, (response: ResponseData) => {
+                        alert("Xoá thành công");
                         props.removeItem(data.id);
                         history.push(history.location.pathname);
                       });

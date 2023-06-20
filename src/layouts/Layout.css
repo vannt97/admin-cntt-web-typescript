@@ -1,6 +1,6 @@
-.sidebar .nav-item .nav-link svg{
-    margin-right: 10px;
+.sidebar .nav-item .nav-link svg {
+  margin-right: 10px;
 }
-.sidebar.toggled .nav-item .nav-link svg{
-    margin-right: 0;
+.sidebar.toggled .nav-item .nav-link svg {
+  margin-right: 0;
 }

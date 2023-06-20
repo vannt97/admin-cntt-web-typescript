@@ -1,7 +1,3 @@
-- handle gửi dữ liệu lên server.
-- posts create
-- posts edit
-- posts remove
-- edit detail user;
-- check lai phan admin render server side cac chuc nang cua cu minh da thay doi phan user
-- check lai phan phan quyen
+- làm 10 cái post sau đó -> làm phần render ra bên server
+- check lai phan admin render server side cac chuc nang cua cu minh da thay doi phan user;
+- check lai phan phan quyen;
