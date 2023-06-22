@@ -1,3 +1,6 @@
-- làm 10 cái post sau đó -> làm phần render ra bên server
-- check lai phan admin render server side cac chuc nang cua cu minh da thay doi phan user;
+- làm phần render ra bên server
+- fix loi error load anh phần edit
+- fix loi error gui category voi tag ( trong phan tao post, edit post)
+- fix phan blockquote 
+
 - check lai phan phan quyen;

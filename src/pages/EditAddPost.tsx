@@ -13,7 +13,6 @@ import { useFormik } from "formik";
 import { getCookie } from "../utils/cookieUtil";
 import { createPost, editPost, getPost } from "../services/APIpost";
 import { useLocation, useParams } from "react-router-dom";
-import { rejects } from "assert";
 
 type OptionType = {
   value: string;
@@ -23,6 +22,8 @@ type OptionType = {
 type ValueCagtegoryTag = {
   categories: OptionType[];
   tags: OptionType[];
+  slugPost: string;
+  isLoading: boolean;
 };
 
 const PATH_ADD_POST = "/post/add";
@@ -46,11 +47,11 @@ export default function EditAddPost() {
       if (getCookie("role") === "ROLE_ADMIN") {
         if (values.title) {
           if (location.pathname.includes(PATH_EDIT_POST)) {
-            editPost(slugPost, values, (res: ResponseData) => {
-              // console.log("res: ", res);
+            editPost(value.slugPost, values, (res: ResponseData) => {
               alert((res.data as any).data);
             });
           } else {
+            console.log('value add: ', values)
             createPost(values, (res: ResponseData) => {
               alert(res.data);
             });
@@ -184,9 +185,12 @@ export default function EditAddPost() {
     "formula",
   ];
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [value, setValue] = useState<ValueCagtegoryTag>();
-  const [slugPost, setSlugPost] = useState("");
+  const [value, setValue] = useState<ValueCagtegoryTag>({
+    categories: [],
+    tags: [],
+    slugPost: "",
+    isLoading: true,
+  });
 
   useEffect(() => {
     let stateValue: ValueCagtegoryTag = {} as any;
@@ -238,8 +242,6 @@ export default function EditAddPost() {
                   idAuthor: getCookie("id"),
                 });
 
-                setSlugPost((response.data as any).slug);
-
                 (document.querySelector("#c_file") as HTMLElement).hidden =
                   true;
                 (
@@ -257,7 +259,10 @@ export default function EditAddPost() {
                   ) as HTMLInputElement
                 ).value = (response.data as any).thumbnail as string;
 
-                setIsLoading(false);
+                // setIsLoading(false);
+                stateValue.slugPost = (response.data as any).slug;
+                stateValue.isLoading = false;
+                setValue(stateValue);
               });
             } else {
               setValue(stateValue);
@@ -282,7 +287,8 @@ export default function EditAddPost() {
       uploadImage((response: ResponseData) => {
         if (response.success) {
           if (imgtag) {
-            setIsLoading(false);
+            // setIsLoading(false);
+            setValue({ ...value, isLoading: false });
             (imgtag as HTMLImageElement).src = response.data as string;
             (
               document.getElementById(
@@ -301,7 +307,7 @@ export default function EditAddPost() {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     (document.getElementById("c_file_success") as HTMLElement).hidden = true;
-    setIsLoading(true);
+    setValue({ ...value, isLoading: true });
     (document.getElementById("c_file") as HTMLElement).hidden = false;
     formik.setFieldValue("thumbnail", "");
   };
@@ -449,7 +455,7 @@ export default function EditAddPost() {
             </div>
             <div id="c_file_success" className="form-group text-center" hidden>
               <div>
-                {isLoading ? <LoadingGif /> : ""}
+                {value.isLoading ? <LoadingGif /> : ""}
                 <img
                   id="imgThumbnailSuccess"
                   className="w-100"
